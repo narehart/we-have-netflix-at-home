@@ -1,0 +1,91 @@
+services:
+  # Radarr - Movie collection management
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=${PUID-100}
+      - PGID=${PGID-100}
+      - TZ=${TZ-America/New_York}
+    volumes:
+      - ./config/radarr:/config
+      - ./data/media/movies:/movies
+      - ./data/downloads:/downloads
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+
+  # Sonarr - TV show collection management
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=${PUID-100}
+      - PGID=${PGID-100}
+      - TZ=${TZ-America/New_York}
+    volumes:
+      - ./config/sonarr:/config
+      - ./data/media/tv:/tv
+      - ./data/downloads:/downloads
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+
+  # NZBGet - Usenet downloader
+  nzbget:
+    image: linuxserver/nzbget:latest
+    container_name: nzbget
+    environment:
+      - PUID=${PUID-100}
+      - PGID=${PGID-100}
+      - TZ=${TZ-America/New_York}
+    volumes:
+      - ./config/nzbget:/config
+      - ./data/downloads:/downloads
+    ports:
+      - 6789:6789
+    restart: unless-stopped
+
+  # Plex - Media server
+  plex:
+    image: linuxserver/plex:latest
+    container_name: plex
+    ports:
+      - 32400:32400/tcp
+      - 3005:3005/tcp
+      - 8324:8324/tcp
+      - 32469:32469/tcp
+      - 1900:1900/udp
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
+    environment:
+      - PUID=${PUID-100}
+      - PGID=${PGID-100}
+      - TZ=${TZ-America/New_York}
+      - VERSION=docker
+      - PLEX_CLAIM=${PLEX_CLAIM}
+      - ADVERTISE_IP=http://localhost:32400/
+    volumes:
+      - ./config/plex:/config
+      - ./data/media:/data
+      - ./data/media/movies:/data/movies
+      - ./data/media/tv:/data/tv
+    restart: unless-stopped
+
+  # Optional: Portainer for easy Docker management via web UI
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/portainer:/data
+    ports:
+      - 9000:9000
+    restart: unless-stopped
+
+# Define a custom network (optional but recommended)
+networks:
+  default:
+    driver: bridge
