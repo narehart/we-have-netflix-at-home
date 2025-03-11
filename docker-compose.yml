@@ -4,8 +4,8 @@ services:
     image: linuxserver/radarr:latest
     container_name: radarr
     environment:
-      - PUID=${PUID-100}
-      - PGID=${PGID-100}
+      - PUID=${PUID-1000}
+      - PGID=${PGID-1000}
       - TZ=${TZ-America/New_York}
     volumes:
       - ./config/radarr:/config
@@ -20,8 +20,8 @@ services:
     image: linuxserver/sonarr:latest
     container_name: sonarr
     environment:
-      - PUID=${PUID-100}
-      - PGID=${PGID-100}
+      - PUID=${PUID-1000}
+      - PGID=${PGID-1000}
       - TZ=${TZ-America/New_York}
     volumes:
       - ./config/sonarr:/config
@@ -36,8 +36,8 @@ services:
     image: linuxserver/nzbget:latest
     container_name: nzbget
     environment:
-      - PUID=${PUID-100}
-      - PGID=${PGID-100}
+      - PUID=${PUID-1000}
+      - PGID=${PGID-1000}
       - TZ=${TZ-America/New_York}
     volumes:
       - ./config/nzbget:/config
@@ -61,8 +61,8 @@ services:
       - 32413:32413/udp
       - 32414:32414/udp
     environment:
-      - PUID=${PUID-100}
-      - PGID=${PGID-100}
+      - PUID=${PUID-1000}
+      - PGID=${PGID-1000}
       - TZ=${TZ-America/New_York}
       - VERSION=docker
       - PLEX_CLAIM=${PLEX_CLAIM}

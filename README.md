@@ -12,33 +12,52 @@ Access the services at:
 
 ## Prerequisites
 
-### Online Services
-
-- A Usenet provider ([Easynews](https://www.easynews.com/) recommended)
+- A Usenet provider account ([Easynews](https://www.easynews.com/) recommended)
+- The following information from your Usenet provider:
+  - Hostname
+  - Port
+  - Username
+  - Password
 - A Usenet indexer ([NZBGeek](https://nzbgeek.info/) recommended)
-- [Docker](https://www.docker.com/) installed on your system
+- The following information from your Usenet indexer:
+  - URL
+  - API key
 - A [Plex](https://www.plex.tv/) account
+- A [Plex claim token](https://plex.tv/claim)
+- [Docker](https://www.docker.com/) installed on your system
 
 ## Setup
 
 - Clone the repo
 - Change directory to the cloned repo
-- Create the following directory structure:
+- Run the following command to create the necessary directories (\*nix/macOS/WSL):
+
+<div style="margin-left: 40px">
+
+```
+mkdir -p config/{radarr,sonarr,nzbget,plex,portainer} data/downloads/{completed/movies,completed/tv,intermediate,nzb} data/media/{movies,tv}
+```
+
+The directory structure should look like this:
 
 ```bash
 .
 ├── config/
-│   ├── radarr/         # Radarr configuration
-│   ├── sonarr/         # Sonarr configuration
 │   ├── nzbget/         # NZBGet configuration
 │   ├── plex/           # Plex configuration
-│   └── portainer/      # Portainer configuration
+│   ├── portainer/      # Portainer configuration
+│   ├── radarr/         # Radarr configuration
+│   └── sonarr/         # Sonarr configuration
 └── data/
     ├── downloads/      # Shared downloads folder used by Radarr, Sonarr, and NZBGet
     └── media/
         ├── movies/     # Movie library for Radarr and Plex
         └── tv/         # TV show library for Sonarr and Plex
 ```
+
+</div>
+
+- Run `cp example.env .env` and update the variables in `.env` as needed.
 
 ## Services Configuration
 
@@ -50,11 +69,11 @@ Start the containers with `docker-compose up -d`.
 
    - Go to http://localhost:9000
    - Create an admin user with a secure password
-   - Choose "Local" environment when prompted
+   - Click on "Get Started"
 
 2. **Verifying Containers**:
 
-   - On the Home page the Environments list should now contain a single item
+   - You should now be on the Home page and the Environments list should now contain a single item
    - The green power icon should have a 5 next to it
 
 ### 2. NZBGet Setup
@@ -64,11 +83,14 @@ Start the containers with `docker-compose up -d`.
    - Go to http://localhost:6789
    - Default credentials: username `nzbget`, password `tegbzn6789`
 
-2. **Basic Configuration**:
+2. **News Servers Configuration**:
 
    - Go to Settings > News Servers
-   - Add your Usenet provider details (hostname, port, username, password)
-   - Enable SSL if your provider supports it
+   - Name your server (e.g., Easynews)
+   - Add your Usenet provider details (host, port, username, password)
+   - Set encryption to `No` if your provider doesn't support it
+   - Test the connection and click `Save all changes`
+   - Repeat for additional servers if needed
 
 3. **Download Paths**:
 
@@ -79,28 +101,38 @@ Start the containers with `docker-compose up -d`.
      - NzbDir: `/downloads/nzb`
 
 4. **Categories Setup** (for Radarr/Sonarr integration):
+
    - Go to Settings > Categories
-   - Create two categories:
-     - Name: `movies`, DestDir: `/downloads/completed/movies`
-     - Name: `tv`, DestDir: `/downloads/completed/tv`
+   - Category 1:
+     - Name: `Movies`
+     - DestDir: `/downloads/completed/movies`
+   - Category 2:
+     - Name: `TV`
+     - DestDir: `/downloads/completed/tv`
+   - click `Save all changes`
+
+5. **Set Download Speed**:
+   - Go to Settings > Connection
+   - Set the download speed limit as needed in KB/s (otherwise NZBGet will use all available bandwidth)
+   - Click `Save all changes`
 
 ### 3. Radarr Setup
 
 1. **Initial Access**:
 
    - Go to http://localhost:7878
-   - No default password required
+   - Set a username and password for access
+   - Click `Save`
 
 2. **Add Download Client**:
 
-   - Go to Settings > Download Clients > Add
-   - Select NZBGet
+   - Go to Settings > Download Clients > plus (+) button
+   - Select `NZBGet`
    - Host: `nzbget` (container name)
    - Port: `6789`
    - Username: `nzbget` (or your custom username)
    - Password: `tegbzn6789` (or your custom password)
-   - Category: `movies`
-   - Test and save
+   - Click `Test` and `Save`
 
 3. **Add Remote Path Mappings**
 
@@ -108,36 +140,40 @@ Start the containers with `docker-compose up -d`.
    - Under Remote Path Mappings click the plus (+) button
    - Host: `nzbget` (container name)
    - Remote Path: `/downloads/completed/movies/`
-   - Local Path: `/downloads/completed/movies`
+   - Local Path: `/downloads/completed/movies/`
+   - Click `Save`
 
 4. **Add Movie Library**:
 
-   - Go to Media Management
-   - Enable "Use Hardlinks" if possible
-   - Set "Root Folders" to `/movies`
+   - Go to Settings > Media Management
+   - Click `Add Root Folder`
+   - Set to `/movies/`
+   - Click `Ok`
 
 5. **Add Indexers**:
-   - Go to Settings > Indexers > Add
-   - Add your preferred Usenet indexers (NZBGeek, etc.)
-   - Enter API keys as required
+   - Go to Settings > Indexers > plus (+) button
+   - Add your preferred Usenet indexers (for NZBGeek use Newznab)
+   - Enter `URL` and `API key` as required
+   - Click `Test` and `Save`
 
 ## 4. Sonarr Setup
 
 1. **Initial Access**:
 
    - Go to http://localhost:8989
-   - No default password required
+   - Set a username and password for access
+   - Click `Save`
 
 2. **Add Download Client**:
 
-   - Go to Settings > Download Clients > Add
-   - Select NZBGet
+   - Go to Settings > Download Clients > plus (+) button
+   - Select `NZBGet`
    - Host: `nzbget` (container name)
    - Port: `6789`
    - Username: `nzbget` (or your custom username)
    - Password: `tegbzn6789` (or your custom password)
-   - Category: `tv`
-   - Test and save
+   - Category: `TV`
+   - Click `Test` and `Save`
 
 3. **Add Remote Path Mappings**
 
@@ -145,18 +181,21 @@ Start the containers with `docker-compose up -d`.
    - Under Remote Path Mappings click the plus (+) button
    - Host: `nzbget` (container name)
    - Remote Path: `/downloads/completed/tv/`
-   - Local Path: `/downloads/completed/tv`
+   - Local Path: `/downloads/completed/tv/`
+   - Click `Save`
 
 4. **Add TV Library**:
 
-   - Go to Media Management
-   - Enable "Use Hardlinks" if possible
-   - Set "Root Folders" to `/tv`
+   - Go to Settings > Media Management
+   - Click `Add Root Folder`
+   - Set to `/tv/`
+   - Click `Ok`
 
 5. **Add Indexers**:
-   - Go to Settings > Indexers > Add
-   - Add your preferred Usenet indexers (NZBGeek, etc.)
-   - Enter API keys as required
+   - Go to Settings > Indexers > plus (+) button
+   - Add your preferred Usenet indexers (for NZBGeek use Newznab)
+   - Enter `URL` and `API key` as required
+   - Click `Test` and `Save`
 
 ## 5. Plex Setup
 
@@ -181,7 +220,7 @@ Start the containers with `docker-compose up -d`.
      - Type: TV Shows
      - Folder: `/data/tv`
 
-### 6. Automatically Download from Watchlist
+### 6. Automatically Download from Plex Watchlist
 
 1. **In Plex**:
 
@@ -190,25 +229,42 @@ Start the containers with `docker-compose up -d`.
 
 1. **In Radarr**:
 
-   - Go to Settings > Connect > Add > Plex
-   - Host: `plex`
-   - Port: `32400`
-   - Authentication: Use Plex token (find in Plex settings)
-   - Test and save
+   - Go to http://localhost:7878
+   - Go to Settings > Import Lists > plus (+) button > Plex Watchlist
+   - Check `Enable`
+   - Check `Search on Add`
+   - Set `Quality Profile` as desired
+   - Click `Authenticate with Plex.tv`
+   - Click `Test` and `Save`
 
 1. **In Sonarr**:
 
-   - Go to Settings > Connect > Add > Plex
-   - Host: `plex`
-   - Port: `32400`
-   - Authentication: Use Plex token (find in Plex settings)
-   - Test and save
+   - Go to http://localhost:8989
+   - Go to Settings > Import Lists > plus (+) button > Plex Watchlist
+   - Set `Monitor` and `Monitor New Seasons` as desired
+   - Set `Quality Profile` as desired
+   - Click `Authenticate with Plex.tv`
+   - Click `Test` and `Save`
 
 ### 7. Testing
 
-1. **Test the Full Flow**:
+1. **Test Downloading**:
+
    - In Radarr: Add a movie, set quality profile, and add to download queue
    - In Sonarr: Add a TV show, set quality profile, and add to download queue
    - Watch NZBGet download the files
    - Verify Radarr/Sonarr import the completed downloads
    - Check Plex to see if the media appears in your libraries
+
+2. **Test Plex Watchlist**:
+
+   - Add a movie or TV show to your Plex Watchlist
+   - Wait for Radarr/Sonarr to pick up the item (this can take up to 6 hours)
+   - Watch NZBGet download the files
+   - Verify Radarr/Sonarr import the completed downloads
+   - Check Plex to see if the media appears in your libraries
+
+3. **Test Plex Server**
+
+   - Play a movie or TV show in Plex
+   - Verify the media plays without issues
