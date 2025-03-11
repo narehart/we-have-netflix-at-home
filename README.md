@@ -12,12 +12,19 @@ Access the services at:
 
 ## Prerequisites
 
-### Online Services
-
-- A Usenet provider ([Easynews](https://www.easynews.com/) recommended)
+- A Usenet provider account ([Easynews](https://www.easynews.com/) recommended)
+- The following information from your Usenet provider:
+  - Hostname
+  - Port
+  - Username
+  - Password
 - A Usenet indexer ([NZBGeek](https://nzbgeek.info/) recommended)
-- [Docker](https://www.docker.com/) installed on your system
+- The following information from your Usenet indexer:
+  - URL
+  - API key
 - A [Plex](https://www.plex.tv/) account
+- A [Plex claim token](https://plex.tv/claim)
+- [Docker](https://www.docker.com/) installed on your system
 
 ## Setup
 
@@ -154,18 +161,19 @@ Start the containers with `docker-compose up -d`.
 1. **Initial Access**:
 
    - Go to http://localhost:8989
-   - No default password required
+   - Set a username and password for access
+   - Click `Save`
 
 2. **Add Download Client**:
 
-   - Go to Settings > Download Clients > Add
-   - Select NZBGet
+   - Go to Settings > Download Clients > plus (+) button
+   - Select `NZBGet`
    - Host: `nzbget` (container name)
    - Port: `6789`
    - Username: `nzbget` (or your custom username)
    - Password: `tegbzn6789` (or your custom password)
-   - Category: `tv`
-   - Test and save
+   - Category: `TV`
+   - Click `Test` and `Save`
 
 3. **Add Remote Path Mappings**
 
@@ -173,18 +181,21 @@ Start the containers with `docker-compose up -d`.
    - Under Remote Path Mappings click the plus (+) button
    - Host: `nzbget` (container name)
    - Remote Path: `/downloads/completed/tv/`
-   - Local Path: `/downloads/completed/tv`
+   - Local Path: `/downloads/completed/tv/`
+   - Click `Save`
 
 4. **Add TV Library**:
 
-   - Go to Media Management
-   - Enable "Use Hardlinks" if possible
-   - Set "Root Folders" to `/tv`
+   - Go to Settings > Media Management
+   - Click `Add Root Folder`
+   - Set to `/tv/`
+   - Click `Ok`
 
 5. **Add Indexers**:
-   - Go to Settings > Indexers > Add
-   - Add your preferred Usenet indexers (NZBGeek, etc.)
-   - Enter API keys as required
+   - Go to Settings > Indexers > plus (+) button
+   - Add your preferred Usenet indexers (for NZBGeek use Newznab)
+   - Enter `URL` and `API key` as required
+   - Click `Test` and `Save`
 
 ## 5. Plex Setup
 
@@ -209,7 +220,7 @@ Start the containers with `docker-compose up -d`.
      - Type: TV Shows
      - Folder: `/data/tv`
 
-### 6. Automatically Download from Watchlist
+### 6. Automatically Download from Plex Watchlist
 
 1. **In Plex**:
 
@@ -218,29 +229,42 @@ Start the containers with `docker-compose up -d`.
 
 1. **In Radarr**:
 
-   - Go to Settings > Connect > Add > Plex
-   - Host: `plex`
-   - Port: `32400`
-   - Authentication: Use Plex token (find in Plex settings)
-   - Test and save
+   - Go to http://localhost:7878
+   - Go to Settings > Import Lists > plus (+) button > Plex Watchlist
+   - Check `Enable`
+   - Check `Search on Add`
+   - Set `Quality Profile` as desired
+   - Click `Authenticate with Plex.tv`
+   - Click `Test` and `Save`
 
 1. **In Sonarr**:
 
-   - Go to Settings > Connect > Add > Plex
-   - Host: `plex`
-   - Port: `32400`
-   - Authentication: Use Plex token (find in Plex settings)
-   - Test and save
+   - Go to http://localhost:8989
+   - Go to Settings > Import Lists > plus (+) button > Plex Watchlist
+   - Set `Monitor` and `Monitor New Seasons` as desired
+   - Set `Quality Profile` as desired
+   - Click `Authenticate with Plex.tv`
+   - Click `Test` and `Save`
 
 ### 7. Testing
 
-1. **Test the Full Flow**:
+1. **Test Downloading**:
+
    - In Radarr: Add a movie, set quality profile, and add to download queue
    - In Sonarr: Add a TV show, set quality profile, and add to download queue
    - Watch NZBGet download the files
    - Verify Radarr/Sonarr import the completed downloads
    - Check Plex to see if the media appears in your libraries
 
-```
+2. **Test Plex Watchlist**:
 
-```
+   - Add a movie or TV show to your Plex Watchlist
+   - Wait for Radarr/Sonarr to pick up the item (this can take up to 6 hours)
+   - Watch NZBGet download the files
+   - Verify Radarr/Sonarr import the completed downloads
+   - Check Plex to see if the media appears in your libraries
+
+3. **Test Plex Server**
+
+   - Play a movie or TV show in Plex
+   - Verify the media plays without issues
